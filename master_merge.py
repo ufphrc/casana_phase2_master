@@ -301,7 +301,7 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
     merged_df.insert(exc_eligible_2_index, 'exc_eligible_2', '')
     merged_df['exc_eligible_2'] = merged_df.apply(lambda row: 'Eligible' if (
         row['exc_eligible'] == 1 and
-        40 <= row['phy_hr'] <= 110 and
+        40 <= row['phy_hr'] <= 120 and
         row['phy_spo2'] >= 90 and
         90 <= row['phy_weight_lb'] <= 350 and
         row['phy_bmi'] < 45 
