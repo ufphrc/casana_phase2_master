@@ -56,7 +56,7 @@ def filter_by_date(df, start_date, end_date):
 
 # ----------------------------- Streamlit User Interface ----------------------------- #
 
-st.title("Data Processing Application")
+st.title("Casana Phase 2: Master Data Set Application")
 
 # Allow the user to select a date range
 start_date = st.date_input("Select Start Date", datetime.now())
