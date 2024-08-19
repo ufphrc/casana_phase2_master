@@ -308,6 +308,14 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
         row['total_moca_2'] >= 18
     ) else 'Ineligible', axis=1)
 
+    # Check for any 'Ineligible' records and print in Streamlit
+    ineligible_records = merged_df[merged_df['exc_eligible_2'] == 'Ineligible']
+    if not ineligible_records.empty:
+        st.write("There are records marked as 'Ineligible'.")
+        st.write(ineligible_records[['record_id', 'exc_eligible_2']])
+    else:
+        st.write("No records are marked as 'Ineligible'.")
+
     # ----------------------------- Processing Medical Reference Data ----------------------------- #
 
     # Prepare med_df
