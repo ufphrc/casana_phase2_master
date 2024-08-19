@@ -304,8 +304,8 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
         40 <= row['phy_hr'] <= 110 and
         row['phy_spo2'] >= 90 and
         90 <= row['phy_weight_lb'] <= 350 and
-        row['phy_bmi'] < 45 and
-        row['total_moca_2'] >= 18
+        row['phy_bmi'] < 45 
+        # and row['total_moca_2'] >= 18
     ) else 'Ineligible', axis=1)
 
     # Check for any 'Ineligible' records and print in Streamlit
@@ -418,7 +418,7 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
         'demo_military_active', 'demo_years_served', 'demo_current_marital', 'demo_marital_other',
         'demo_living_arrange', 'demo_living_other', 'demo_children', 'demo_disability',
         'demo_disability_spec', 'demo_lived_in_villages', 'demo_residency',
-        'demo_years_lived_villages', 'demo_surrounding', 'phy_skin'
+        'demo_years_lived_villages', 'demo_surrounding', 'phy_skin', 'total_moca_2'
     ]
     v1_df_filtered = filtered_v1_df[columns_to_pull_v1]
     
@@ -444,6 +444,12 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
             cols.insert(demo_gender_index, cols.pop(cols.index(col)))
             demo_gender_index += 1
 
+    # Move 'total_moca_2' just beside 'rating_social_eng'
+    if 'total_moca_2' in cols and 'rating_social_eng' in cols:
+        rating_social_eng_index = cols.index('rating_social_eng') + 1
+        cols.insert(rating_social_eng_index, cols.pop(cols.index('total_moca_2')))
+    final_df = final_df[cols]
+    
     # Move 'phy_skin' just beside 'phy_arm'
     if 'phy_skin' in cols and 'phy_arm' in cols:
         phy_arm_index = cols.index('phy_arm') + 1
