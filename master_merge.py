@@ -408,22 +408,6 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
         final_df.drop(['record_id_y'], axis=1, inplace=True)
         final_df.rename(columns={'record_id_x': 'record_id'}, inplace=True)
 
-    # Reorder columns near 'demo_gender'
-    columns_to_move_near_demo_gender = [
-        'demo_race', 'demo_highest_edu', 'demo_current_employ', 'demo_military',
-        'demo_military_active', 'demo_years_served', 'demo_current_marital',
-        'demo_marital_other', 'demo_living_arrange', 'demo_living_other',
-        'demo_children', 'demo_disability', 'demo_disability_spec',
-        'demo_lived_in_villages', 'demo_residency', 'demo_years_lived_villages',
-        'demo_surrounding'
-    ]
-    cols = list(final_df.columns)
-    demo_gender_index = cols.index('demo_gender') + 1
-    for col in columns_to_move_near_demo_gender:
-        if col in cols:
-            cols.insert(demo_gender_index, cols.pop(cols.index(col)))
-            demo_gender_index += 1
-
 
     # Step 1: Fill missing values in total_moca_2 with values from total_moca_2_v1
     final_df['total_moca_2'] = final_df['total_moca_2'].fillna(final_df['total_moca_2_v1'])
@@ -445,6 +429,32 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
     # Apply the new column order to final_df
     final_df = final_df[columns]
 
+    # Step 5: Move the specified columns next to demo_gender
+    columns_to_move = [
+        'demo_race', 'demo_highest_edu', 'demo_current_employ', 'demo_military',
+        'demo_military_active', 'demo_years_served', 'demo_current_marital',
+        'demo_marital_other', 'demo_living_arrange', 'demo_living_other',
+        'demo_children', 'demo_disability', 'demo_disability_spec',
+        'demo_lived_in_villages', 'demo_residency', 'demo_years_lived_villages',
+        'demo_surrounding'
+    ]
+    
+    # Ensure all columns exist before attempting to reorder
+    columns_to_move = [col for col in columns_to_move if col in final_df.columns]
+    
+    # Remove these columns from the current order
+    for col in columns_to_move:
+        columns.remove(col)
+    
+    # Find the position of demo_gender
+    demo_gender_index = columns.index('demo_gender')
+    
+    # Insert columns_to_move right after demo_gender
+    for i, col in enumerate(columns_to_move):
+        columns.insert(demo_gender_index + 1 + i, col)
+    
+    # Apply the new column order to final_df
+    final_df = final_df[columns]
         # ----------------------------- Eligibility Processing ----------------------------- #
 
     # Processing 'exc_eligible_2' column based on provided criteria
