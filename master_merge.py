@@ -435,7 +435,7 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
     columns = final_df.columns.tolist()
     rating_social_eng_index = columns.index('rating_social_eng')
     columns.remove('total_moca_2')
-    columns.insert(rating_social_eng_index + 1, 'total_moca_2')
+    columns.insert(rating_social_eng_index, 'total_moca_2')
     
     # Step 4: Reorder columns to place phy_skin beside phy_sternal
     phy_sternal_index = columns.index('phy_sternal')
