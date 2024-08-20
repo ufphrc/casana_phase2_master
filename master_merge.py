@@ -585,7 +585,16 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
 
     # Move the combined column after med_his_cardio
     final_df = move_column(final_df, 'med_his_cardio_medic', 'med_his_cardio')
-    
+
+    # Convert specified columns to v1_df data types
+    final_df['demo_marital_other'] = final_df['demo_marital_other'].astype('object')
+    final_df['med_his_arr_other1'] = final_df['med_his_arr_other1'].astype('object')
+    final_df['rating_overall_health'] = final_df['rating_overall_health'].astype('object')
+    final_df['rating_social_eng'] = final_df['rating_social_eng'].astype('object')
+    final_df['time_8'] = final_df['time_8'].astype('object')
+    final_df['ths_link_8'] = final_df['ths_link_8'].astype('object')
+    final_df['ths_pf_8'] = final_df['ths_pf_8'].astype('object')
+
     # ----------------------------- Export to Excel ----------------------------- #
 
     # Format the filename using the selected start and end dates
