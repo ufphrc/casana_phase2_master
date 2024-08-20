@@ -293,28 +293,28 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
     merged_df['pe_overall_exp'] = merged_df['pe_overall_exp'].apply(lambda x: 11 - x)
     merged_df['pe_valuable'] = merged_df['pe_valuable'].fillna(0).astype(int)
 
-    # ----------------------------- Eligibility Processing ----------------------------- #
+    # # ----------------------------- Eligibility Processing ----------------------------- #
 
-    # Processing 'exc_eligible_2' column based on provided criteria
-    exc_eligible_2_index = merged_df.columns.get_loc('exc_eligible_2')
-    merged_df = merged_df.drop(columns=['exc_eligible_2'])
-    merged_df.insert(exc_eligible_2_index, 'exc_eligible_2', '')
-    merged_df['exc_eligible_2'] = merged_df.apply(lambda row: 'Eligible' if (
-        row['exc_eligible'] == 1 and
-        40 <= row['phy_hr'] <= 120 and
-        row['phy_spo2'] >= 90 and
-        90 <= row['phy_weight_lb'] <= 350 and
-        row['phy_bmi'] < 45 
-        # and row['total_moca_2'] >= 18
-    ) else 'Ineligible', axis=1)
+    # # Processing 'exc_eligible_2' column based on provided criteria
+    # exc_eligible_2_index = merged_df.columns.get_loc('exc_eligible_2')
+    # merged_df = merged_df.drop(columns=['exc_eligible_2'])
+    # merged_df.insert(exc_eligible_2_index, 'exc_eligible_2', '')
+    # merged_df['exc_eligible_2'] = merged_df.apply(lambda row: 'Eligible' if (
+    #     row['exc_eligible'] == 1 and
+    #     40 <= row['phy_hr'] <= 120 and
+    #     row['phy_spo2'] >= 90 and
+    #     90 <= row['phy_weight_lb'] <= 350 and
+    #     row['phy_bmi'] < 45 
+    #     # and row['total_moca_2'] >= 18
+    # ) else 'Ineligible', axis=1)
 
-    # Check for any 'Ineligible' records and print in Streamlit
-    ineligible_records = merged_df[merged_df['exc_eligible_2'] == 'Ineligible']
-    if not ineligible_records.empty:
-        st.write("There are records marked as 'Ineligible'.")
-        st.write(ineligible_records[['record_id', 'exc_eligible_2']])
-    else:
-        st.write("No records are marked as 'Ineligible'.")
+    # # Check for any 'Ineligible' records and print in Streamlit
+    # ineligible_records = merged_df[merged_df['exc_eligible_2'] == 'Ineligible']
+    # if not ineligible_records.empty:
+    #     st.write("There are records marked as 'Ineligible'.")
+    #     st.write(ineligible_records[['record_id', 'exc_eligible_2']])
+    # else:
+    #     st.write("No records are marked as 'Ineligible'.")
 
     # ----------------------------- Processing Medical Reference Data ----------------------------- #
 
@@ -421,6 +421,9 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
         'demo_years_lived_villages', 'demo_surrounding', 'phy_skin', 'total_moca_2'
     ]
     v1_df_filtered = filtered_v1_df[columns_to_pull_v1]
+   
+    # Renaming single column
+    v1_df_filtered = v1_df_filtered.rename(columns={'total_moca_2': 'total_moca_2_v1'})
     
     # Merge result_df with v1_df_filtered
     final_df = pd.merge(result_df, v1_df_filtered, on='record_id', how='left')
@@ -444,17 +447,49 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
             cols.insert(demo_gender_index, cols.pop(cols.index(col)))
             demo_gender_index += 1
 
-    # Move 'total_moca_2' just beside 'rating_social_eng'
-    if 'total_moca_2' in cols and 'rating_social_eng' in cols:
-        rating_social_eng_index = cols.index('rating_social_eng') + 1
-        cols.insert(rating_social_eng_index, cols.pop(cols.index('total_moca_2')))
-    final_df = final_df[cols]
+
+    # Step 1: Fill missing values in total_moca_2 with values from total_moca_2_v1
+    final_df['total_moca_2'] = final_df['total_moca_2'].fillna(final_df['total_moca_2_v1'])
     
-    # Move 'phy_skin' just beside 'phy_arm'
-    if 'phy_skin' in cols and 'phy_arm' in cols:
-        phy_arm_index = cols.index('phy_arm') + 1
-        cols.insert(phy_arm_index, cols.pop(cols.index('phy_skin')))
-    final_df = final_df[cols]
+    # Step 2: Remove the column total_moca_2_v1
+    final_df.drop(columns=['total_moca_2_v1'], inplace=True)
+    
+    # Step 3: Reorder columns to place total_moca_2 beside rating_social_eng
+    columns = final_df.columns.tolist()
+    rating_social_eng_index = columns.index('rating_social_eng')
+    columns.remove('total_moca_2')
+    columns.insert(rating_social_eng_index + 1, 'total_moca_2')
+    
+    # Step 4: Reorder columns to place phy_skin beside phy_sternal
+    phy_sternal_index = columns.index('phy_sternal')
+    columns.remove('phy_skin')
+    columns.insert(phy_sternal_index + 1, 'phy_skin')
+    
+    # Apply the new column order to final_df
+    final_df = final_df[columns]
+
+        # ----------------------------- Eligibility Processing ----------------------------- #
+
+    # Processing 'exc_eligible_2' column based on provided criteria
+    exc_eligible_2_index = final_df.columns.get_loc('exc_eligible_2')
+    final_df = final_df.drop(columns=['exc_eligible_2'])
+    final_df.insert(exc_eligible_2_index, 'exc_eligible_2', '')
+    final_df['exc_eligible_2'] = final_df.apply(lambda row: 'Eligible' if (
+        row['exc_eligible'] == 1 and
+        40 <= row['phy_hr'] <= 120 and
+        row['phy_spo2'] >= 90 and
+        90 <= row['phy_weight_lb'] <= 350 and
+        row['phy_bmi'] < 45  and
+        row['total_moca_2'] >= 18
+    ) else 'Ineligible', axis=1)
+
+    # Check for any 'Ineligible' records and print in Streamlit
+    ineligible_records = merged_df[merged_df['exc_eligible_2'] == 'Ineligible']
+    if not ineligible_records.empty:
+        st.write("There are records marked as 'Ineligible'.")
+        st.write(ineligible_records[['record_id', 'exc_eligible_2']])
+    else:
+        st.write("No records are marked as 'Ineligible'.")
 
     # ----------------------------- Column Mappings ----------------------------- #
 
