@@ -293,29 +293,6 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
     merged_df['pe_overall_exp'] = merged_df['pe_overall_exp'].apply(lambda x: 11 - x)
     merged_df['pe_valuable'] = merged_df['pe_valuable'].fillna(0).astype(int)
 
-    # # ----------------------------- Eligibility Processing ----------------------------- #
-
-    # # Processing 'exc_eligible_2' column based on provided criteria
-    # exc_eligible_2_index = merged_df.columns.get_loc('exc_eligible_2')
-    # merged_df = merged_df.drop(columns=['exc_eligible_2'])
-    # merged_df.insert(exc_eligible_2_index, 'exc_eligible_2', '')
-    # merged_df['exc_eligible_2'] = merged_df.apply(lambda row: 'Eligible' if (
-    #     row['exc_eligible'] == 1 and
-    #     40 <= row['phy_hr'] <= 120 and
-    #     row['phy_spo2'] >= 90 and
-    #     90 <= row['phy_weight_lb'] <= 350 and
-    #     row['phy_bmi'] < 45 
-    #     # and row['total_moca_2'] >= 18
-    # ) else 'Ineligible', axis=1)
-
-    # # Check for any 'Ineligible' records and print in Streamlit
-    # ineligible_records = merged_df[merged_df['exc_eligible_2'] == 'Ineligible']
-    # if not ineligible_records.empty:
-    #     st.write("There are records marked as 'Ineligible'.")
-    #     st.write(ineligible_records[['record_id', 'exc_eligible_2']])
-    # else:
-    #     st.write("No records are marked as 'Ineligible'.")
-
     # ----------------------------- Processing Medical Reference Data ----------------------------- #
 
     # Prepare med_df
@@ -484,7 +461,7 @@ if uploaded_df1 and uploaded_df2 and uploaded_med_df and uploaded_v1_df:
     ) else 'Ineligible', axis=1)
 
     # Check for any 'Ineligible' records and print in Streamlit
-    ineligible_records = merged_df[merged_df['exc_eligible_2'] == 'Ineligible']
+    ineligible_records = final_df[final_df['exc_eligible_2'] == 'Ineligible']
     if not ineligible_records.empty:
         st.write("There are records marked as 'Ineligible'.")
         st.write(ineligible_records[['record_id', 'exc_eligible_2']])
